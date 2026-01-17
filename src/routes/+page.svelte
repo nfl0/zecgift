@@ -12,13 +12,18 @@
 	let isSyncing = $state(false);
 	let copied = $state(false);
 	let linkCopied = $state(false);
+	let linkGenerated = $state(false);
+	let isButtonHovered = $state(false);
 	let wallet: any = null;
 	let accountId: number = 0;
 	let pollInterval: ReturnType<typeof setInterval> | null = null;
 
 	// Convert zatoshi to ZEC
 	function formatZec(zatoshi: number): string {
-		return (zatoshi / 100_000_000).toFixed(8);
+		if (zatoshi === 0) return '0';
+		const zec = zatoshi / 100_000_000;
+		// Remove trailing zeros but keep at least one decimal if needed
+		return parseFloat(zec.toFixed(8)).toString();
 	}
 
 	// Truncate address for display
@@ -27,6 +32,19 @@
 		return `${addr.slice(0, 12)}...${addr.slice(-8)}`;
 	}
 
+	// Truncate link for display
+	function truncateLink(link: string): string {
+		if (link.length <= 40) return link;
+		return `${link.slice(0, 28)}...${link.slice(-8)}`;
+	}
+
+	// Reactive gift link
+	let giftLink = $derived(
+		browser && seedPhrase && birthdayHeight
+			? `${window.location.origin}?gift=${btoa(JSON.stringify({ seed: seedPhrase, birthday: birthdayHeight }))}`
+			: ''
+	);
+
 	// Copy to clipboard
 	async function copyAddress() {
 		await navigator.clipboard.writeText(address);
@@ -34,16 +52,14 @@
 		setTimeout(() => (copied = false), 2000);
 	}
 
-	// Generate gift link
-	function generateGiftLink(): string {
-		const data = { seed: seedPhrase, birthday: birthdayHeight };
-		const encoded = btoa(JSON.stringify(data));
-		return `${window.location.origin}?gift=${encoded}`;
+	// Generate the gift link (reveal it)
+	function generateLink() {
+		linkGenerated = true;
 	}
 
+	// Copy gift link to clipboard
 	async function copyGiftLink() {
-		const link = generateGiftLink();
-		await navigator.clipboard.writeText(link);
+		await navigator.clipboard.writeText(giftLink);
 		linkCopied = true;
 		setTimeout(() => (linkCopied = false), 2000);
 	}
@@ -158,17 +174,39 @@
 			</div>
 
 			<div class="balance-container">
-				<div class="balance">{formatZec(balance)} ZEC</div>
-				{#if isSyncing}
-					<div class="sync-status">Checking balance...</div>
-				{:else}
-					<div class="sync-status">Balance updated</div>
-				{/if}
+				<div class="balance">
+					{formatZec(balance)} ZEC
+					{#if isSyncing}
+						<span class="balance-spinner"></span>
+					{/if}
+				</div>
 			</div>
 
-			<button class="generate-btn" onclick={copyGiftLink}>
-				{linkCopied ? 'Link Copied!' : 'Generate Gift Link'}
-			</button>
+			<div class="gift-link-section">
+				{#if !linkGenerated}
+					<button
+						class="generate-btn"
+						onclick={generateLink}
+						onmouseenter={() => (isButtonHovered = true)}
+						onmouseleave={() => (isButtonHovered = false)}
+					>
+						Generate Gift Link
+					</button>
+					<p class="hint-text" class:highlighted={isButtonHovered}>
+						Click generate link once account is funded
+					</p>
+				{:else}
+					<div class="link-reveal">
+						<div class="link-text" title={giftLink}>
+							{giftLink ? truncateLink(giftLink) : 'Generating...'}
+						</div>
+						<button class="copy-link-btn" onclick={copyGiftLink} title="Copy gift link">
+							{linkCopied ? 'Copied!' : 'Copy'}
+						</button>
+					</div>
+					<p class="share-hint">Share this link with your recipient</p>
+				{/if}
+			</div>
 		{/if}
 	</div>
 </div>
@@ -285,12 +323,23 @@
 		font-weight: 600;
 		color: #1a1a1a;
 		letter-spacing: -1px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 12px;
 	}
 
-	.sync-status {
-		font-size: 13px;
-		color: #999;
-		margin-top: 8px;
+	.balance-spinner {
+		width: 18px;
+		height: 18px;
+		border: 2px solid #e4e8ec;
+		border-top-color: #1a1a1a;
+		border-radius: 50%;
+		animation: spin 0.8s linear infinite;
+	}
+
+	.gift-link-section {
+		margin-top: 24px;
 	}
 
 	.generate-btn {
@@ -313,5 +362,68 @@
 
 	.generate-btn:active {
 		transform: translateY(0);
+	}
+
+	.hint-text {
+		font-size: 14px;
+		color: #999;
+		margin: 12px 0 0 0;
+		transition: color 0.2s;
+	}
+
+	.hint-text.highlighted {
+		color: #1a1a1a;
+	}
+
+	.link-reveal {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+		padding: 12px 0;
+		animation: fadeSlideIn 0.3s ease-out;
+	}
+
+	@keyframes fadeSlideIn {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.link-text {
+		font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+		font-size: 13px;
+		color: #1a1a1a;
+		word-break: break-all;
+		flex: 1;
+		text-align: left;
+	}
+
+	.copy-link-btn {
+		background: #1a1a1a;
+		color: white;
+		border: none;
+		border-radius: 8px;
+		padding: 8px 16px;
+		font-size: 14px;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.2s;
+		white-space: nowrap;
+	}
+
+	.copy-link-btn:hover {
+		background: #333;
+	}
+
+	.share-hint {
+		font-size: 13px;
+		color: #999;
+		margin: 12px 0 0 0;
 	}
 </style>
