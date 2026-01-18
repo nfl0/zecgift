@@ -291,10 +291,14 @@
 						<p class="error-text">{sendError}</p>
 					{/if}
 
+					{#if balance > 0 && balance <= FEE_RESERVE}
+						<p class="warning-text">Balance must be greater than 0.0003 ZEC to cover network fees</p>
+					{/if}
+
 					<button
 						class="claim-btn"
 						onclick={claimGift}
-						disabled={isSending || !recipientAddress || balance === 0}
+						disabled={isSending || !recipientAddress || balance === 0 || balance <= FEE_RESERVE}
 					>
 						{#if isSending}
 							<span class="btn-spinner"></span>
@@ -608,6 +612,17 @@
 		font-size: 14px;
 		margin: 12px 0 0 0;
 		text-align: left;
+	}
+
+	.warning-text {
+		color: #f57c00;
+		font-size: 13px;
+		margin: 12px 0 0 0;
+		text-align: center;
+		background: #fff3e0;
+		padding: 8px 12px;
+		border-radius: 8px;
+		border: 1px solid #ffe0b2;
 	}
 
 	.claim-btn {
