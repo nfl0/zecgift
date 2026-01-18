@@ -312,7 +312,6 @@
 			<p class="tagline">
 				Fund this address to create<br />a Zcash gift card
 			</p>
-			<p class="deposit-hint">Fund with at least 0.001 ZEC</p>
 
 			{#if isLoading}
 				<div class="loading">
@@ -320,15 +319,6 @@
 					<p>Initializing wallet...</p>
 				</div>
 			{:else}
-				<div class="address-container">
-					<div class="address" title={address}>
-						{truncateAddress(address)}
-					</div>
-					<button class="copy-btn" onclick={copyAddress} title="Copy address">
-						{copied ? '✓' : '📋'}
-					</button>
-				</div>
-
 				<div class="balance-container">
 					<div class="balance">
 						{formatZec(balance)} ZEC
@@ -336,6 +326,17 @@
 							<span class="balance-spinner"></span>
 						{/if}
 					</div>
+				</div>
+
+				<p class="deposit-hint">Fund with at least 0.001 ZEC</p>
+
+				<div class="address-container">
+					<div class="address" title={address}>
+						{truncateAddress(address)}
+					</div>
+					<button class="copy-btn" onclick={copyAddress} title="Copy address">
+						{copied ? '✓' : '📋'}
+					</button>
 				</div>
 
 				{#if balance > 0}
