@@ -8,6 +8,16 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ["@chainsafe/webzjs-wallet", "@chainsafe/webzjs-keys"],
   },
+  worker: {
+    format: "es",
+  },
+  build: {
+    target: "esnext",
+    rollupOptions: {
+      // Don't process worker files through Rollup
+      external: [/snippets\/wasm-bindgen-rayon.*/, /snippets\/wasm_thread.*/],
+    },
+  },
   server: {
     fs: {
       allow: ["./deps"],
