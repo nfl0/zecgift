@@ -6,7 +6,7 @@ ZecGift is a fully client-side web application that lets you create and send Zca
 
 ## How It Works
 
-![ZecGift Architecture](static/architecture.png)
+![ZecGift Architecture](static/architecture.jpg)
 
 ### Gift Creation (Sender)
 1. Visit ZecGift - a new ephemeral wallet is generated in your browser
