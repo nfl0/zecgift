@@ -13,8 +13,6 @@
 	let isSyncing = $state(false);
 	let copied = $state(false);
 	let linkCopied = $state(false);
-	let linkGenerated = $state(false);
-	let isButtonHovered = $state(false);
 	// Claim mode state
 	let isClaimMode = $state(false);
 	let recipientAddress = $state('');
@@ -64,11 +62,6 @@
 		await navigator.clipboard.writeText(address);
 		copied = true;
 		setTimeout(() => (copied = false), 2000);
-	}
-
-	// Generate the gift link (reveal it)
-	function generateLink() {
-		linkGenerated = true;
 	}
 
 	// Copy gift link to clipboard
@@ -346,29 +339,15 @@
 				</div>
 
 				<div class="gift-link-section">
-					{#if !linkGenerated}
-						<button
-							class="generate-btn"
-							onclick={generateLink}
-							onmouseenter={() => (isButtonHovered = true)}
-							onmouseleave={() => (isButtonHovered = false)}
-						>
-							Generate Gift Link
-						</button>
-						<p class="hint-text" class:highlighted={isButtonHovered}>
-							Click generate link once account is funded
-						</p>
-					{:else}
-						<div class="link-reveal">
-							<div class="link-text" title={giftLink}>
-								{giftLink ? truncateLink(giftLink) : 'Generating...'}
-							</div>
-							<button class="copy-link-btn" onclick={copyGiftLink} title="Copy gift link">
-								{linkCopied ? 'Copied!' : 'Copy'}
-							</button>
+					<div class="link-reveal">
+						<div class="link-text" title={giftLink}>
+							{giftLink ? truncateLink(giftLink) : 'Generating...'}
 						</div>
-						<p class="share-hint">Share this link with your recipient</p>
-					{/if}
+						<button class="copy-link-btn" onclick={copyGiftLink} title="Copy gift link">
+							{linkCopied ? 'Copied!' : 'Copy'}
+						</button>
+					</div>
+					<p class="share-hint">Once funded, share this link with your recipient</p>
 				</div>
 			{/if}
 		{/if}
@@ -504,39 +483,6 @@
 
 	.gift-link-section {
 		margin-top: 24px;
-	}
-
-	.generate-btn {
-		background: #1a1a1a;
-		color: white;
-		border: none;
-		border-radius: 12px;
-		padding: 16px 32px;
-		font-size: 16px;
-		font-weight: 600;
-		cursor: pointer;
-		transition: all 0.2s;
-		width: 100%;
-	}
-
-	.generate-btn:hover {
-		background: #333;
-		transform: translateY(-1px);
-	}
-
-	.generate-btn:active {
-		transform: translateY(0);
-	}
-
-	.hint-text {
-		font-size: 14px;
-		color: #999;
-		margin: 12px 0 0 0;
-		transition: color 0.2s;
-	}
-
-	.hint-text.highlighted {
-		color: #1a1a1a;
 	}
 
 	.link-reveal {
