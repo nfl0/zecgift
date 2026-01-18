@@ -280,7 +280,7 @@
 						{/if}
 					</div>
 					<p class="balance-label">Available to claim</p>
-					<p class="fee-hint">0.0002 ZEC will be deducted for network fees</p>
+					<p class="fee-hint">0.0003 ZEC will be deducted for network fees</p>
 				</div>
 
 				<div class="claim-form">
