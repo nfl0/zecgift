@@ -255,7 +255,7 @@
 					<p class="success-hint">ZEC has been sent to your address</p>
 					{#if txId}
 						<a
-							href="https://mainnet.zcashexplorer.app/transactions/{txId}"
+							href="https://www.zypherscan.com/tx/{txId}"
 							target="_blank"
 							rel="noopener noreferrer"
 							class="explorer-link"
